@@ -59,5 +59,5 @@ if __name__ == "__main__":
         lon=-122.4194,
         location_name="San Francisco",
         start_date=date(2025, 1, 1),
-        end_date=date(2099, 12, 31),
+        end_date=date(2030, 12, 31),
     )
