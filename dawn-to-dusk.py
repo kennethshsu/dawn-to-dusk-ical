@@ -39,6 +39,10 @@ def dawn_to_dusk_ical(
     current_date = start_date
     while current_date <= end_date:
         s = sun(location.observer, date=current_date, tzinfo=tz)
+        dawn = s["dawn"]
+        sunrise = s["sunrise"]
+        sunset = s["sunset"]
+        dusk = s["dusk"]
 
         # Sunrise event (dawn → sunrise)
         sunrise_event = Event()
