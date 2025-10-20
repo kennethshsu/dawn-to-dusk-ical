@@ -71,7 +71,7 @@ if __name__ == "__main__":
         lat=37.7749,
         lon=-122.4194,
         location_name="San Francisco",
-        start_date=date(2025, 1, 1),
+        start_date=date(2025, 7, 1),
         end_date=date(2026, 12, 31),
         date_in_file_name=False,
     )
