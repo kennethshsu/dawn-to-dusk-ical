@@ -40,20 +40,20 @@ def dawn_to_dusk_ical(
     while current_date <= end_date:
         s = sun(location.observer, date=current_date, tzinfo=tz)
 
-        # Sunrise event
+        # Sunrise event (dawn → sunrise)
         sunrise_event = Event()
-        sunrise_event.add("summary", "☀️ Sunrise")
-        sunrise_event.add("dtstart", s["sunrise"])
-        sunrise_event.add("dtend", s["sunrise"] + timedelta(minutes=15))
+        sunrise_event.add("summary", f"☀️ Sunrise at {sunrise.strftime('%H:%M')}")
+        sunrise_event.add("dtstart", dawn)
+        sunrise_event.add("dtend", sunrise)
         sunrise_event.add("dtstamp", date.today())
         sunrise_event.add("location", location_name)
         cal.add_component(sunrise_event)
 
-        # Sunset event
+        # Sunset event (sunset → dusk)
         sunset_event = Event()
-        sunset_event.add("summary", "🌙 Sunset")
-        sunset_event.add("dtstart", s["sunset"])
-        sunset_event.add("dtend", s["sunset"] + timedelta(minutes=15))
+        sunset_event.add("summary", f"🌙 Sunset at {sunset.strftime('%H:%M')}")
+        sunset_event.add("dtstart", sunset)
+        sunset_event.add("dtend", dusk)
         sunset_event.add("dtstamp", date.today())
         sunset_event.add("location", location_name)
         cal.add_component(sunset_event)
