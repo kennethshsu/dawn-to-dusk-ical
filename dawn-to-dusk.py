@@ -8,6 +8,12 @@ import pytz
 def dawn_to_dusk_ical(
     lat, lon, location_name, start_date, end_date, filename="dawn_to_dusk_ical.ics"
 ):
+    date_range = f"{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}"
+    if filename.endswith(".ics"):
+        filename = filename.replace(".ics", f"_{date_range}.ics")
+    else:
+        filename = f"{filename}_{date_range}.ics"
+
     # Setup location
     location = LocationInfo(
         name=location_name,
@@ -59,5 +65,5 @@ if __name__ == "__main__":
         lon=-122.4194,
         location_name="San Francisco",
         start_date=date(2025, 1, 1),
-        end_date=date(2030, 12, 31),
+        end_date=date(2026, 12, 31),
     )
