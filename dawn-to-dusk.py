@@ -11,9 +11,10 @@ def dawn_to_dusk_ical(
     location_name,
     start_date,
     end_date,
-    date_in_file_name=False,
+    date_in_file_name=True,
     filename="dawn_to_dusk_ical.ics",
 ):
+    # Add date range to file name if enabled
     if date_in_file_name:
         date_range = f"{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}"
         if filename.endswith(".ics"):
@@ -66,18 +67,16 @@ def dawn_to_dusk_ical(
     year = start_date.year
     while year <= end_date.year:
         # U.S. daylight saving: starts 2nd Sunday in March, ends 1st Sunday in November
-        # Find 2nd Sunday in March
         march = date(year, 3, 1)
         second_sunday_march = march + timedelta(days=(6 - march.weekday()) % 7 + 7)
 
-        # Find 1st Sunday in November
         november = date(year, 11, 1)
         first_sunday_november = november + timedelta(days=(6 - november.weekday()) % 7)
 
-        # Add DST Start (Spring Forward)
+        # DST Start (Spring Forward)
         if start_date <= second_sunday_march <= end_date:
             dst_start = Event()
-            dst_start.add("summary", "⏰ Daylight Saving Time Begins")
+            dst_start.add("summary", "⏰ Daylight Saving Time Starts")
             dst_start.add("dtstart", second_sunday_march)
             dst_start.add("dtend", second_sunday_march + timedelta(days=1))
             dst_start.add("dtstamp", datetime.now(tz))
@@ -88,7 +87,7 @@ def dawn_to_dusk_ical(
             dst_start["dtend"].params["VALUE"] = "DATE"
             cal.add_component(dst_start)
 
-        # Add DST End (Fall Back)
+        # DST End (Fall Back)
         if start_date <= first_sunday_november <= end_date:
             dst_end = Event()
             dst_end.add("summary", "⏰ Daylight Saving Time Ends")
@@ -108,6 +107,8 @@ def dawn_to_dusk_ical(
     with open(filename, "wb") as f:
         f.write(cal.to_ical())
 
+    print(f"Calendar exported as: {filename}")
+
 
 # Example usage
 if __name__ == "__main__":
@@ -117,5 +118,5 @@ if __name__ == "__main__":
         location_name="San Francisco",
         start_date=date(2025, 7, 1),
         end_date=date(2026, 12, 31),
-        date_in_file_name=False,
+        date_in_file_name=True,
     )
