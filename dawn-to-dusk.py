@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from astral import LocationInfo
 from astral.sun import sun
 from icalendar import Calendar, Event
@@ -20,8 +20,6 @@ def dawn_to_dusk_ical(
             filename = filename.replace(".ics", f"_{date_range}.ics")
         else:
             filename = f"{filename}_{date_range}.ics"
-    else:
-        filename = filename
 
     # Setup location
     location = LocationInfo(
@@ -49,7 +47,7 @@ def dawn_to_dusk_ical(
         sunrise_event.add("summary", f"☀️ Sunrise at {sunrise.strftime('%H:%M')}")
         sunrise_event.add("dtstart", dawn)
         sunrise_event.add("dtend", sunrise)
-        sunrise_event.add("dtstamp", date.today())
+        sunrise_event.add("dtstamp", datetime.now(tz))
         sunrise_event.add("location", location_name)
         cal.add_component(sunrise_event)
 
@@ -58,18 +56,60 @@ def dawn_to_dusk_ical(
         sunset_event.add("summary", f"🌙 Sunset at {sunset.strftime('%H:%M')}")
         sunset_event.add("dtstart", sunset)
         sunset_event.add("dtend", dusk)
-        sunset_event.add("dtstamp", date.today())
+        sunset_event.add("dtstamp", datetime.now(tz))
         sunset_event.add("location", location_name)
         cal.add_component(sunset_event)
 
         current_date += timedelta(days=1)
+
+    # Add daylight saving transitions
+    year = start_date.year
+    while year <= end_date.year:
+        # U.S. daylight saving: starts 2nd Sunday in March, ends 1st Sunday in November
+        # Find 2nd Sunday in March
+        march = date(year, 3, 1)
+        second_sunday_march = march + timedelta(days=(6 - march.weekday()) % 7 + 7)
+
+        # Find 1st Sunday in November
+        november = date(year, 11, 1)
+        first_sunday_november = november + timedelta(days=(6 - november.weekday()) % 7)
+
+        # Add DST Start (Spring Forward)
+        if start_date <= second_sunday_march <= end_date:
+            dst_start = Event()
+            dst_start.add("summary", "⏰ Daylight Saving Time Begins")
+            dst_start.add("dtstart", second_sunday_march)
+            dst_start.add("dtend", second_sunday_march + timedelta(days=1))
+            dst_start.add("dtstamp", datetime.now(tz))
+            dst_start.add("transp", "TRANSPARENT")
+            dst_start.add("description", "Clocks spring forward 1 hour.")
+            dst_start.add("location", location_name)
+            dst_start["dtstart"].params["VALUE"] = "DATE"
+            dst_start["dtend"].params["VALUE"] = "DATE"
+            cal.add_component(dst_start)
+
+        # Add DST End (Fall Back)
+        if start_date <= first_sunday_november <= end_date:
+            dst_end = Event()
+            dst_end.add("summary", "⏰ Daylight Saving Time Ends")
+            dst_end.add("dtstart", first_sunday_november)
+            dst_end.add("dtend", first_sunday_november + timedelta(days=1))
+            dst_end.add("dtstamp", datetime.now(tz))
+            dst_end.add("transp", "TRANSPARENT")
+            dst_end.add("description", "Clocks fall back 1 hour.")
+            dst_end.add("location", location_name)
+            dst_end["dtstart"].params["VALUE"] = "DATE"
+            dst_end["dtend"].params["VALUE"] = "DATE"
+            cal.add_component(dst_end)
+
+        year += 1
 
     # Write to file
     with open(filename, "wb") as f:
         f.write(cal.to_ical())
 
 
-# Example usage:
+# Example usage
 if __name__ == "__main__":
     dawn_to_dusk_ical(
         lat=37.7749,
