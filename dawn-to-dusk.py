@@ -1,8 +1,17 @@
 from datetime import date, timedelta, datetime
+from calendar import monthrange
 from astral import LocationInfo
 from astral.sun import sun
 from icalendar import Calendar, Event
 import pytz
+
+
+def shift_months(d: date, months: int) -> date:
+    month = d.month - 1 + months
+    year = d.year + month // 12
+    month = month % 12 + 1
+    day = min(d.day, monthrange(year, month)[1])
+    return date(year, month, day)
 
 
 def dawn_to_dusk_ical(
@@ -112,11 +121,12 @@ def dawn_to_dusk_ical(
 
 # Example usage
 if __name__ == "__main__":
+    run_date = date.today()
     dawn_to_dusk_ical(
         lat=37.7749,
         lon=-122.4194,
         location_name="San Francisco",
-        start_date=date(2025, 7, 1),
-        end_date=date(2026, 12, 31),
+        start_date=shift_months(run_date, -1),
+        end_date=shift_months(run_date, 12),
         date_in_file_name=True,
     )
