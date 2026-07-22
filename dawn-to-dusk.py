@@ -26,10 +26,7 @@ def dawn_to_dusk_ical(
     # Add date range to file name if enabled
     if date_in_file_name:
         date_range = f"{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}"
-        if filename.endswith(".ics"):
-            filename = filename.replace(".ics", f"_{date_range}.ics")
-        else:
-            filename = f"{filename}_{date_range}.ics"
+        filename = f"{filename}_{date_range}.ics"
 
     # Setup location
     location = LocationInfo(
@@ -128,5 +125,6 @@ if __name__ == "__main__":
         location_name="San Francisco",
         start_date=shift_months(run_date, -1),
         end_date=shift_months(run_date, 12),
-        date_in_file_name=True,
+        date_in_file_name=False,
+        filename="San_Francisco_dawn_to_dusk.ics"
     )
