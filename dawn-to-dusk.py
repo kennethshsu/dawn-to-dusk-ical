@@ -56,6 +56,9 @@ def dawn_to_dusk_ical(
         sunrise_event.add("dtend", sunrise)
         sunrise_event.add("dtstamp", datetime.now(tz))
         sunrise_event.add("location", location_name)
+        sunrise_event.add(
+            "uid", f"sunrise-{current_date.isoformat()}@san-francisco-dawn-to-dusk"
+        )
         cal.add_component(sunrise_event)
 
         # Sunset event (sunset → dusk)
@@ -65,6 +68,9 @@ def dawn_to_dusk_ical(
         sunset_event.add("dtend", dusk)
         sunset_event.add("dtstamp", datetime.now(tz))
         sunset_event.add("location", location_name)
+        sunset_event.add(
+            "uid", f"sunset-{current_date.isoformat()}@san-francisco-dawn-to-dusk"
+        )
         cal.add_component(sunset_event)
 
         current_date += timedelta(days=1)
@@ -89,6 +95,7 @@ def dawn_to_dusk_ical(
             dst_start.add("transp", "TRANSPARENT")
             dst_start.add("description", "Clocks spring forward 1 hour.")
             dst_start.add("location", location_name)
+            dst_start.add("uid", f"dst-start-{year}@san-francisco-dawn-to-dusk")
             dst_start["dtstart"].params["VALUE"] = "DATE"
             dst_start["dtend"].params["VALUE"] = "DATE"
             cal.add_component(dst_start)
@@ -103,6 +110,7 @@ def dawn_to_dusk_ical(
             dst_end.add("transp", "TRANSPARENT")
             dst_end.add("description", "Clocks fall back 1 hour.")
             dst_end.add("location", location_name)
+            dst_end.add("uid", f"dst-end-{year}@san-francisco-dawn-to-dusk")
             dst_end["dtstart"].params["VALUE"] = "DATE"
             dst_end["dtend"].params["VALUE"] = "DATE"
             cal.add_component(dst_end)
