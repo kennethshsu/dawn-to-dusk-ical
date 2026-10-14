@@ -128,12 +128,17 @@ def dawn_to_dusk_ical(
     write_calendar(cal, filename)
 
 
-SOURCES = [
+Holidays_Sources = [
     ["https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics", "🇺🇸"],
     ["https://calendar.google.com/calendar/ical/en.taiwan%23holiday%40group.v.calendar.google.com/public/basic.ics", "🇹🇼"],
     ["https://calendar.google.com/calendar/ical/en.mexican%23holiday%40group.v.calendar.google.com/public/basic.ics", "🇲🇽"],
     ["https://ics.calendarlabs.com/577/fcc99924/Nyse_Market_Holidays.ics", "🏦"],
       ["https://www.brownbearsw.com/calcium/icalendar/us_informal_holidays.ics", "🎈"],
+]
+
+Arenas_Sources = [
+  ["https://www.chasecentercalendar.com/oraclepark.ics", "⚾"],
+  ["https://www.chasecentercalendar.com/chasecenter.ics", "🏀"],
 ]
 
 
@@ -143,7 +148,7 @@ def fetch_calendar(url):
         return Calendar.from_ical(response.read())
 
 
-def consolidate_icals(sources, calendar_name="Holidays", filename="holidays.ics"):
+def consolidate_icals(sources, calendar_name, filename):
     cal = Calendar()
     cal.add("prodid", "-//calendars//consolidate//EN")
     cal.add("version", "2.0")
@@ -186,4 +191,5 @@ if __name__ == "__main__":
         date_in_file_name=False,
         filename="san_francisco_dawn_to_dusk.ics",
     )
-    consolidate_icals(SOURCES)
+    consolidate_icals(Holidays_Sources, calendar_name="Holidays", filename="holidays.ics")
+    consolidate_icals(Arenas_Sources, calendar_name="San Francisco Arena Events", filename="san_francisco_arena_events.ics")
