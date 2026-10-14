@@ -134,5 +134,5 @@ if __name__ == "__main__":
         start_date=shift_months(run_date, -1),
         end_date=shift_months(run_date, 12),
         date_in_file_name=False,
-        filename="San_Francisco_dawn_to_dusk.ics"
+        filename="san_francisco_dawn_to_dusk.ics"
     )
