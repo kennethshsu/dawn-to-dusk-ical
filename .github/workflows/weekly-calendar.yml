@@ -31,8 +31,8 @@ jobs:
       - name: Remove previous calendar files
         run: rm -f *.ics
 
-      - name: Generate calendar
-        run: python dawn-to-dusk.py
+      - name: Generate calendars
+        run: python process_cals.py
 
       - name: Commit and push calendar
         run: |

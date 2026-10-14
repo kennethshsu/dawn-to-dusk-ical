@@ -1,9 +1,17 @@
 from datetime import date, timedelta, datetime
 from calendar import monthrange
+from urllib.request import Request, urlopen
 from astral import LocationInfo
 from astral.sun import sun
 from icalendar import Calendar, Event
 import pytz
+
+
+def write_calendar(cal, filename):
+    with open(filename, "wb") as f:
+        f.write(cal.to_ical())
+
+    print(f"Calendar exported as: {filename}")
 
 
 def shift_months(d: date, months: int) -> date:
@@ -117,14 +125,55 @@ def dawn_to_dusk_ical(
 
         year += 1
 
-    # Write to file
-    with open(filename, "wb") as f:
-        f.write(cal.to_ical())
-
-    print(f"Calendar exported as: {filename}")
+    write_calendar(cal, filename)
 
 
-# Example usage
+SOURCES = [
+    ["https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics", "🇺🇸"],
+    ["https://calendar.google.com/calendar/ical/en.taiwan%23holiday%40group.v.calendar.google.com/public/basic.ics", "🇹🇼"],
+    ["https://calendar.google.com/calendar/ical/en.mexican%23holiday%40group.v.calendar.google.com/public/basic.ics", "🇲🇽"],
+    ["https://ics.calendarlabs.com/577/fcc99924/Nyse_Market_Holidays.ics", "🏦"],
+]
+
+
+def fetch_calendar(url):
+    request = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urlopen(request, timeout=30) as response:
+        return Calendar.from_ical(response.read())
+
+
+def consolidate_icals(sources, calendar_name="Holidays", filename="holidays.ics"):
+    cal = Calendar()
+    cal.add("prodid", "-//calendars//consolidate//EN")
+    cal.add("version", "2.0")
+    cal.add("x-wr-calname", calendar_name)
+
+    seen_timezones = set()
+    for url, emoji in sources:
+        source_cal = fetch_calendar(url)
+        event_count = 0
+
+        for component in source_cal.walk("VTIMEZONE"):
+            tzid = str(component.get("tzid"))
+            if tzid not in seen_timezones:
+                seen_timezones.add(tzid)
+                cal.add_component(component)
+
+        for event in source_cal.walk("VEVENT"):
+            summary = str(event.get("summary", ""))
+            event["summary"] = f"{emoji} {summary}"
+            original_uid = event.get("uid")
+            if original_uid is None:
+                original_uid = f"{event_count}@holidays"
+            event["uid"] = f"{emoji} {original_uid}"
+            cal.add_component(event)
+            event_count += 1
+
+        print(f"{emoji}: {event_count} events")
+
+    write_calendar(cal, filename)
+
+
 if __name__ == "__main__":
     run_date = date.today()
     dawn_to_dusk_ical(
@@ -134,5 +183,6 @@ if __name__ == "__main__":
         start_date=shift_months(run_date, -1),
         end_date=shift_months(run_date, 12),
         date_in_file_name=False,
-        filename="san_francisco_dawn_to_dusk.ics"
+        filename="san_francisco_dawn_to_dusk.ics",
     )
+    consolidate_icals(SOURCES)
